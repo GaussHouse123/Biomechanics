@@ -92,3 +92,32 @@ figure('color','w','Position', [10 10 1200 700]);
     pause(0.1)
     end
 end
+
+%% 
+
+% Trunk
+Trunk_vector_y = zeros(length(TRXO_y), 2);
+Trunk_vector_z = zeros(length(TRXO_z), 2);
+Trunk_vector_y(:, 1) = TRXO_y - TRXP_y;
+Trunk_vector_z(:, 2) = TRXO_z - TRXP_z;
+Trunk_angle = atan(Trunk_vector_y(:, 1)./Trunk_vector_z(:, 2)) * 180/pi;
+
+
+% Pelvis
+Pelvis_vector_y = zeros(length(PELP_y), 2);
+Pelvis_vector_z = zeros(length(PELP_z), 2);
+Pelvis_vector_y(:, 1) = PELP_y - PELO_y;
+Pelvis_vector_z(:, 2) = PELP_z - PELO_z;
+
+Pelvis_angle = atan(Pelvis_vector_y(:, 1)./Pelvis_vector_z(:, 2)) * 180/pi;
+
+
+% Hip (right leg)
+Knee_vector_y = zeros(length(RKNEE_y), 2);
+Knee_vector_z = zeros(length(RKNEE_z), 2);
+Knee_vector_y(:, 1) = RHIP_y - RKNEE_y;
+Knee_vector_z(:, 2) = RHIP_z - RKNEE_z;
+
+
+Knee_vector = Knee_vector_z + Knee_vector_y;
+
