@@ -44,18 +44,9 @@ FP1_COP_y  =(600 - data_grf_s.FP1_COP_Y)*toMeters;     FP1_COP_z  =data_grf_s.FP
 FP2_force_y=data_grf_s.FP2_Force_Y;            FP2_force_z=data_grf_s.FP2_Force_Z;
 FP2_COP_y=(-600 - data_grf_s.FP2_COP_Y)*toMeters;       FP2_COP_z=data_grf_s.FP2_COP_Z*toMeters;
 
-%%
-
-
-
-
-
-
-
-
 %% Run a simple animation for visualization purposes only
 
-run_animation=false;
+run_animation=true;
 color_body="#0077be";
 row=height(data_trc);
 
@@ -83,6 +74,8 @@ figure('color','w','Position', [10 10 1200 700]);
     text(RKNEE_y(i),RKNEE_z(i),'Rknee','FontSize',8)
     text(LKNEE_y(i),LKNEE_z(i),'Lknee','FontSize',8)
     
+    %disp(knee_angle(i))
+
     % Compare with the previous frame, if the values of COP are changed, it
     % means the subject is stepping on that force plate and we visualize it 
     if (i>=2)
@@ -104,20 +97,12 @@ figure('color','w','Position', [10 10 1200 700]);
 end
 
 %%
+
 % Trunk
-
-
 TRXO=[TRXO_y TRXO_z];
 TRXP=[TRXP_y TRXP_z];
 trunk=TRXO-TRXP;
 Trunk_angle=atan(trunk(:,1)./trunk(:,2));
-
-% Trunk_vector_y = zeros(length(TRXO_y), 2);
-% Trunk_vector_z = zeros(length(TRXO_z), 2);
-% Trunk_vector_y(:, 1) = TRXO_y - TRXP_y;
-% Trunk_vector_z(:, 2) = TRXO_z - TRXP_z;
-% Trunk_angle1 = atan(Trunk_vector_y(:, 1)./Trunk_vector_z(:, 2)) * 180/pi;
-
 
 % Pelvis
 PELP=[PELP_y PELP_z];
@@ -125,26 +110,23 @@ PELO=[PELO_y PELO_z];
 Pelvis=PELP-PELO;
 Pelvis_angle=atan(Pelvis(:,1)./Pelvis(:,2));
 
-
-% Pelvis_vector_y = zeros(length(PELP_y), 2);
-% Pelvis_vector_z = zeros(length(PELP_z), 2);
-% Pelvis_vector_y(:, 1) = PELP_y - PELO_y;
-% Pelvis_vector_z(:, 2) = PELP_z - PELO_z;
-% test2=Pelvis-Pelvis_vector_y-Pelvis_vector_z
-% Pelvis_angle1 = atan(Pelvis_vector_y(:, 1)./Pelvis_vector_z(:, 2)) * 180/pi;
-
-
 % Hip (right leg)
 RKNEE=[RKNEE_y RKNEE_z];
 RHIP=[RHIP_y RHIP_z];
 Knee_right=RHIP-RKNEE;
-% Knee_vector_y = zeros(length(RKNEE_y), 2);
-% Knee_vector_z = zeros(length(RKNEE_z), 2);
-% Knee_vector_y(:, 1) = RHIP_y - RKNEE_y;
-% Knee_vector_z(:, 2) = RHIP_z - RKNEE_z;
-% test=Knee_right-Knee_vector_y-Knee_vector_z
-% Knee_vector = Knee_vector_z + Knee_vector_y;
-
 righthip=acos(dot(Knee_right,Pelvis,2)./(vecnorm(Knee_right,2,2).*vecnorm(Pelvis,2,2)))*180/pi;
-max(righthip)
-min(righthip)
+
+%max(righthip)
+%min(righthip)
+
+% Knee (right leg)
+RANKLE=[RANKLE_y RANKLE_z];
+Ankle_right = RKNEE-RANKLE;
+
+u = Ankle_right;
+v = Knee_right;
+
+cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
+dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
+
+knee_angle = atan2(cp, dp) * 180/pi;
