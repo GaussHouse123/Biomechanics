@@ -46,7 +46,7 @@ FP2_COP_y=(-600 - data_grf_s.FP2_COP_Y)*toMeters;       FP2_COP_z=data_grf_s.FP2
 
 %% Run a simple animation for visualization purposes only
 
-run_animation=true;
+run_animation=false;
 color_body="#0077be";
 row=height(data_trc);
 
@@ -113,8 +113,16 @@ Pelvis_angle=atan(Pelvis(:,1)./Pelvis(:,2));
 % Hip (right leg)
 RKNEE=[RKNEE_y RKNEE_z];
 RHIP=[RHIP_y RHIP_z];
-Knee_right=RHIP-RKNEE;
-righthip=acos(dot(Knee_right,Pelvis,2)./(vecnorm(Knee_right,2,2).*vecnorm(Pelvis,2,2)))*180/pi;
+femur_right=RHIP-RKNEE;
+u = femur_right;
+v = Pelvis;
+
+cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
+dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
+
+hip_angle = atan2(cp, dp) * -1;% * 180/pi *-1;
+
+%righthip=acos(dot(femur_right,Pelvis,2)./(vecnorm(femur_right,2,2).*vecnorm(Pelvis,2,2)))*180/pi;
 
 %max(righthip)
 %min(righthip)
@@ -124,9 +132,53 @@ RANKLE=[RANKLE_y RANKLE_z];
 Ankle_right = RKNEE-RANKLE;
 
 u = Ankle_right;
-v = Knee_right;
+v = femur_right;
 
 cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
 dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
 
-knee_angle = atan2(cp, dp) * 180/pi;
+knee_angle = atan2(cp, dp);% * 180/pi;
+
+% Ankle angle
+RTOE = [RTOE_y RTOE_z];
+Foot_right = RTOE - RANKLE;
+
+u = Ankle_right;
+v = Foot_right;
+
+cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
+dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
+
+foot_angle = (95*pi/180) + atan2(cp, dp);% * 180/pi;
+
+
+%plot(time(124:212),foot_angle(124:212))
+
+
+%% Moment
+
+dt = time(3) - time(2);
+
+ankle_speed_y = gradient(RANKLE_y,dt);
+ankle_acc_y = gradient(ankle_speed_y, dt);
+
+ankle_speed_z = gradient(RANKLE_z,dt);
+ankle_acc_z = gradient(ankle_speed_z, dt);
+
+ankle_angle_speed = gradient(foot_angle,dt);
+ankle_angle_acc = gradient(ankle_angle_speed,dt);
+
+foot_length = norm(Foot_right(1, :));
+foot_COM_factor = 0.5;
+
+dy = foot_COM_factor * foot_length * cos(foot_angle);
+dz = foot_COM_factor * foot_length * sin(foot_angle);
+
+
+%plot(time(124:212), ankle_acc_y(124:212))
+%figure;
+%plot(time(124:212), ankle_speed_y(124:212))
+
+
+
+
