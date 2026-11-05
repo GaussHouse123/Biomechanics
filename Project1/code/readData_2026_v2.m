@@ -157,6 +157,8 @@ v = Foot_right;
 cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
 dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
 
+
+
 foot_angle = (95*pi/180) + atan2(cp, dp);% * 180/pi;
 
 
@@ -194,6 +196,7 @@ ankle_acc_z = diff(ankle_speed_z)/dt;
 
 
 
+
 knee_speed_y = diff(RKNEE_y)/dt;
 knee_acc_y = diff(knee_speed_y )/dt;
 
@@ -202,6 +205,13 @@ knee_acc_z = diff(knee_speed_z)/dt;
 
 knee_angle_speed = diff(knee_angle)/dt;
 knee_angle_acc = diff(knee_angle_speed)/dt;
+
+
+
+
+hip_angle_speed=diff(hip_angle)/dt;
+hip_angle_acc = diff(hip_angle_speed)/dt;
+
 
 %foot
 
@@ -214,6 +224,12 @@ dz_Gf=CG_foot_z'-FP2_COP_z;
 dy_Gf=FP2_COP_y-CG_foot_y';
 
 
+CG_foot_speed_z = diff(CG_foot_z)/dt;
+CG_foot_speed_y = diff(CG_foot_y)/dt;
+
+CG_foot_acc_z = diff(CG_foot_speed_z)/dt;
+CG_foot_acc_y = diff(CG_foot_speed_y)/dt;
+
 m_f=total_mass*0.0145;
 center_of_gyration_foot=foot_length*0.475;
 I_foot=center_of_gyration_foot^2*m_f;
@@ -224,8 +240,8 @@ for i=124:212
         -dz_Af(i) -dy_Af(i) 1
         ];
 
-    b1=[m_f*ankle_acc_y(i)-FP2_force_y(i); 
-        m_f*ankle_acc_z(i)-FP2_force_z(i)+m_f*g;
+    b1=[m_f*CG_foot_acc_y(i)-FP2_force_y(i); 
+        m_f*CG_foot_acc_z(i)-FP2_force_z(i)+m_f*g;
         I_foot*ankle_angle_acc(i)-(FP2_force_y(i)*dz_Gf(i)+FP2_force_z(i)*dy_Gf(i))];
 
     X1(:,i)=A1\b1;
@@ -246,6 +262,11 @@ I_shank=center_of_gyration_shank^2*m_s;
 CG_shank_y=RANKLE_y+0.433*(RKNEE_y-RANKLE_y);
 CG_shank_z=RANKLE_z+0.433*(RKNEE_z-RANKLE_z);
 
+CG_shank_speed_z = diff(CG_shank_z)/dt;
+CG_shank_speed_y = diff(CG_shank_y)/dt;
+
+CG_shank_acc_z = diff(CG_shank_speed_z)/dt;
+CG_shank_acc_y = diff(CG_shank_speed_y)/dt;
 % CG_shank_y=mean([RKNEE_y';RANKLE_y'])';
 % CG_shank_z=mean([RKNEE_z';RANKLE_z'])';
 
@@ -262,15 +283,53 @@ A2=[1 0 0 ;
     0 1 0; 
     -d_Ks_z(i) d_Ks_y(i) 1];
 
-b2=[m_s*knee_acc_y(i)+X1(1,i); 
-    m_s*knee_acc_z(i)+X1(2,i)+m_s*g ; 
+b2=[m_s*CG_shank_acc_y(i)+X1(1,i); 
+    m_s*CG_shank_acc_z(i)+X1(2,i)+m_s*g ; 
     X1(3,i)+X1(1,i)*d_As_z(i)-X1(2,i)*d_As_y(i)+I_shank*knee_angle_acc(i)];
 
 X2(:,i)=A2\b2;
 end
 
+%hip
+m_t=0.1*total_mass;
+thigh_length=(0.530-(0.285+0.039))*total_length;
+center_of_gyration_thigh=0.323*thigh_length;
+I_thigh=center_of_gyration_thigh^2*m_t;
+
+CG_thigh_y=RKNEE_y+0.433*(RHIP_y-RKNEE_y);
+CG_thigh_z=RKNEE_z+0.433*(RHIP_z-RKNEE_z);
 
 
+
+CG_thigh_speed_z = diff(CG_thigh_z)/dt;
+CG_thigh_speed_y = diff(CG_thigh_y)/dt;
+
+CG_thigh_acc_z = diff(CG_thigh_speed_z)/dt;
+CG_thigh_acc_y = diff(CG_thigh_speed_y)/dt;
+
+
+d_Kt_z=CG_thigh_z-RKNEE_z;
+d_Kt_y=RKNEE_y-CG_thigh_y;
+d_Ht_y=CG_thigh_y-RHIP_y;
+d_Ht_z=RHIP_z-CG_thigh_z;
+
+for i=124:212
+    A3=[1 0 0 ; 
+        0 1 0; 
+        -d_Ht_z(i) -d_Ht_y(i) 1];
+
+    b3=[m_t*CG_thigh_acc_y(i)+X2(1,i); 
+        m_t*CG_thigh_acc_z(i)+X2(2,i)+m_t*g ; 
+        X2(3,i)+X2(1,i)*d_Kt_z(i)+X2(2,i)*d_Kt_y(i)+I_thigh*hip_angle_acc(i)];
+
+    X3(:,i)=A3\b3;
+end
+
+
+
+
+
+%plots
 subplot(3,2,1)
 plot(time(124:257),Trunk_angle(124:257)*180/pi,LineWidth=1.5)
 title("Trunk angle")
@@ -314,6 +373,11 @@ xlabel("gait / %")
 ylabel("moment / Nm/kg")
 
 figure(4)
+plot((124-124:212-124)*(100/(212-124)),X3(3,124:212)/(61.9))
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+
+figure(5)
 plot((124-124:212-124)*(100/(212-124)),P_foot/(61.9))
 xlabel("gait / %")
 ylabel("Power / W/kg")
@@ -324,3 +388,4 @@ ylabel("Power / W/kg")
 % pause(0.1)
 % hold off
 % end
+
