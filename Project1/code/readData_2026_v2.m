@@ -164,8 +164,10 @@ foot_angle = (95*pi/180) + atan2(cp, dp);% * 180/pi;
 
 
 %% Moment
-
-dt = time(3) - time(2);
+g=9.81;
+total_mass=61.9;
+total_length=1.77;
+dt =2*( time(3) - time(2));
 
 % ankle_speed_y = gradient(RANKLE_y,dt);
 % ankle_acc_y = gradient(ankle_speed_y, dt);
@@ -179,7 +181,8 @@ dt = time(3) - time(2);
 ankle_angle_speed = diff(foot_angle)/dt;
 ankle_angle_acc = diff(ankle_angle_speed)/dt;
 
-foot_length = sqrt(Foot_right(160, 1)^2+Foot_right(160, 2)^2)
+% foot_length = sqrt(Foot_right(160, 1)^2+Foot_right(160, 2)^2)
+foot_length =0.152*total_length;%from ISBN 9780470398180
 foot_COM_factor = 0.5;
 
 ankle_speed_y = diff(RANKLE_y)/dt;
@@ -200,52 +203,68 @@ knee_acc_z = diff(knee_speed_z)/dt;
 knee_angle_speed = diff(knee_angle)/dt;
 knee_angle_acc = diff(knee_angle_speed)/dt;
 
+%foot
 
 
-dy = Foot_right(:,1)*foot_COM_factor-RANKLE_y;
-dz = Foot_right(:,2)*foot_COM_factor-RANKLE_z;
+CG_foot_y=mean([RTOE_y';RANKLE_y']);
+CG_foot_z=mean([RTOE_z';RANKLE_z']);
+dy_Af = CG_foot_y'-RANKLE_y;
+dz_Af = RANKLE_z-CG_foot_z';
+dz_Gf=CG_foot_z'-FP2_COP_z;
+dy_Gf=FP2_COP_y-CG_foot_y';
 
-right_foot_CG=Foot_right*0.5;
-dz_F=right_foot_CG(:,2)-FP2_COP_z;
-dy_F=FP2_COP_y-right_foot_CG(:,1);
 
-
-total_mass=61.9;
 m_f=total_mass*0.0145;
-g=9.81;
 center_of_gyration_foot=foot_length*0.475;
 I_foot=center_of_gyration_foot^2*m_f;
 
+for i=124:212
+    A1=[1 0 0;
+        0 1 0; 
+        -dz_Af(i) -dy_Af(i) 1
+        ];
 
+    b1=[m_f*ankle_acc_y(i)-FP2_force_y(i); 
+        m_f*ankle_acc_z(i)-FP2_force_z(i)+m_f*g;
+        I_foot*ankle_angle_acc(i)-(FP2_force_y(i)*dz_Gf(i)+FP2_force_z(i)*dy_Gf(i))];
+
+    X1(:,i)=A1\b1;
+end
+M_foot=X1(3,124:212)';
+P_foot=M_foot.*ankle_angle_speed(124:212);
+
+
+%shank
 m_s=0.0465*total_mass;
-
-shank_length=sqrt(shank_right(160,1)^2+shank_right(160,2)^2);
-
+% shank_length=sqrt(shank_right(160,1)^2+shank_right(160,2)^2);
+shank_length=(0.285-0.039)*total_length;
 center_of_gyration_shank=0.302*shank_length;
 I_shank=center_of_gyration_shank^2*m_s;
 
 
 
+CG_shank_y=RANKLE_y+0.433*(RKNEE_y-RANKLE_y);
+CG_shank_z=RANKLE_z+0.433*(RKNEE_z-RANKLE_z);
 
-d_Ks_z=cos(knee_angle)*shank_length*0.433;
-d_Ks_y=sin(knee_angle)*shank_length*0.433;
+% CG_shank_y=mean([RKNEE_y';RANKLE_y'])';
+% CG_shank_z=mean([RKNEE_z';RANKLE_z'])';
 
-d_Ka_y=sin(knee_angle)*shank_length-d_Ks_y;
-d_Ka_z=cos(knee_angle)*shank_length-d_Ks_z;
+d_Ks_z=RKNEE_z-CG_shank_z;
+d_Ks_y=RKNEE_y-CG_shank_y;
+d_As_y=CG_shank_y-RANKLE_y;
+d_As_z=CG_shank_z-RANKLE_z;
 
 
-for i=124:257
-A1=[1 0 0 ; 0 1 0; -dz(i) -dy(i) 1];
 
-b1=[m_f*ankle_acc_y(i)-FP2_force_y(i); m_f*ankle_acc_z(i)-FP2_force_z(i)+m_f*g;I_foot*ankle_angle_acc(i)-(FP2_force_y(i)*dz_F(i)+FP2_force_z(i)*dy_F(i))];
 
-X1(:,i)=A1\b1;
-end
+for i=124:212
+A2=[1 0 0 ; 
+    0 1 0; 
+    -d_Ks_z(i) d_Ks_y(i) 1];
 
-for i=124:257
-A2=[1 0 0 ; 0 1 0; -d_Ks_z(i) d_Ks_y(i) 1];
-
-b2=[m_s*knee_acc_y(i)+X1(1,i);  m_s*knee_acc_z(i)+X1(2,i)+m_s*g ; X1(3,i)+X1(1,i)*d_Ka_z(i)-X1(2,i)*d_Ka_y(i)+I_shank*knee_angle_acc(i)];
+b2=[m_s*knee_acc_y(i)+X1(1,i); 
+    m_s*knee_acc_z(i)+X1(2,i)+m_s*g ; 
+    X1(3,i)+X1(1,i)*d_As_z(i)-X1(2,i)*d_As_y(i)+I_shank*knee_angle_acc(i)];
 
 X2(:,i)=A2\b2;
 end
@@ -285,7 +304,23 @@ title("foot angle")
 legend("Right leg")
 
 figure(2)
-plot(time(124:212),X1(3,124:212)/(61.9))
+plot((124-124:212-124)*(100/(212-124)),X1(3,124:212)/(61.9))
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
 
 figure(3)
-plot(time(124:212),X2(3,124:212)/(61.9))
+plot((124-124:212-124)*(100/(212-124)),X2(3,124:212)/(61.9))
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+
+figure(4)
+plot((124-124:212-124)*(100/(212-124)),P_foot/(61.9))
+xlabel("gait / %")
+ylabel("Power / W/kg")
+% for i=124:257
+% plot([RANKLE_y(i),RKNEE_y(i)],[RANKLE_z(i),RKNEE_z(i)])
+% hold on
+% plot(CG_shank_y(i),CG_shank_z(i),'*')
+% pause(0.1)
+% hold off
+% end
