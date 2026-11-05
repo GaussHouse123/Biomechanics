@@ -167,7 +167,7 @@ foot_angle = (95*pi/180) + atan2(cp, dp);% * 180/pi;
 g=9.81;
 total_mass=61.9;
 total_length=1.77;
-dt =2*( time(3) - time(2));
+dt =( time(3) - time(2));
 
 % ankle_speed_y = gradient(RANKLE_y,dt);
 % ankle_acc_y = gradient(ankle_speed_y, dt);
