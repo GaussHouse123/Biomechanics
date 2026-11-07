@@ -157,7 +157,7 @@ TRXP = [TRXP_y TRXP_z];
 trunk_vec = TRXO - TRXP;
 z_vec = [zeros(size(trunk_vec, 1), 1), ones(size(trunk_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
 
-trunk_angle = atan2(cross_product(trunk_vec, z_vec), dot_product(trunk_vec, z_vec)) * 180/pi;
+trunk_angle = atan2(cross_product(trunk_vec, z_vec), dot_product(trunk_vec, z_vec)) ;
 
 % Pelvis
 PELP = [PELP_y PELP_z];
@@ -165,7 +165,7 @@ PELO = [PELO_y PELO_z];
 pelvis_vec = PELP - PELO;
 z_vec = [zeros(size(pelvis_vec, 1), 1), ones(size(pelvis_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
 
-pelvis_angle = atan2(cross_product(pelvis_vec, z_vec), dot_product(pelvis_vec, z_vec)) * 180/pi;
+pelvis_angle = atan2(cross_product(pelvis_vec, z_vec), dot_product(pelvis_vec, z_vec)) ;
 
 
 
