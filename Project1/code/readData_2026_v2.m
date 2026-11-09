@@ -15,7 +15,6 @@ file_dir = pwd;
 data_trc = readtable(fullfile(file_dir,[name_motion{index} '.csv']));
 data_grf = readtable(fullfile(file_dir,[name_grf{index} '.csv']));
 
-
 %% Downsample ground reaction data, so it has the same length as marker trajectory
 
 data_grf_s = downsample(data_grf,10);
@@ -144,12 +143,7 @@ if run_animation == true
     end
 end
 
-
-
 %% Angle calculations
-
-
-
 
 % Trunk
 TRXO = [TRXO_y TRXO_z];
@@ -157,7 +151,7 @@ TRXP = [TRXP_y TRXP_z];
 trunk_vec = TRXO - TRXP;
 z_vec = [zeros(size(trunk_vec, 1), 1), ones(size(trunk_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
 
-trunk_angle = atan2(cross_product(trunk_vec, z_vec), dot_product(trunk_vec, z_vec)) ;
+trunk_angle = atan2(cross_product(trunk_vec, z_vec), dot_product(trunk_vec, z_vec));
 
 % Pelvis
 PELP = [PELP_y PELP_z];
@@ -166,8 +160,6 @@ pelvis_vec = PELP - PELO;
 z_vec = [zeros(size(pelvis_vec, 1), 1), ones(size(pelvis_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
 
 pelvis_angle = atan2(cross_product(pelvis_vec, z_vec), dot_product(pelvis_vec, z_vec)) ;
-
-
 
 %Known  for both legs
 %all anthropometric data taken from ISBN 9780470398180: 
@@ -192,7 +184,6 @@ shank_length=(0.285-0.039)*total_length;
 center_of_gyration_shank=0.302*shank_length;
 I_shank=center_of_gyration_shank^2*m_s;
 
-
 %thigh
 
 m_t=0.1*total_mass;
@@ -200,7 +191,10 @@ thigh_length=(0.530-(0.285+0.039))*total_length;
 center_of_gyration_thigh=0.323*thigh_length;
 I_thigh=center_of_gyration_thigh^2*m_t;
 
-%--------------------------right leg calculations-----------------------
+%% --------------------------right leg angle calculations-----------------------
+right_gait_startframe=124;
+right_gait_endframe=212;
+
 % Hip (right leg)
 right_knee = [RKJC_y RKJC_z];
 right_hip =[RHJC_y RHJC_z];
@@ -220,38 +214,29 @@ right_foot_vec = right_foot - right_ankle;
 
 foot_angle_R = 95 * pi/180+ atan2(cross_product(tibia_right_vec, right_foot_vec), dot_product(tibia_right_vec, right_foot_vec)) ;
 
+%% -------------------------Moments and forces right leg-------------------
 
+%numerical derivation using MATLABs gradient function
 
+ankle_angle_speed_R = gradient(foot_angle_R,dt);
+ankle_angle_acc_R = gradient(ankle_angle_speed_R,dt);
 
+knee_angle_speed_R = gradient(knee_angle_R,dt);
+knee_angle_acc_R = gradient(knee_angle_speed_R,dt);
 
-
-% -------------------------Moments and forces right leg-------------------
-
-
-%numerical derivation of the angles on the form y_dot=(y(2)-y(1))/dt for y_dotdot repeat
-%with y_dot
-
-ankle_angle_speed_R = diff(foot_angle_R)/dt;
-ankle_angle_acc_R = diff(ankle_angle_speed_R)/dt;
-
-knee_angle_speed_R = diff(knee_angle_R)/dt;
-knee_angle_acc_R = diff(knee_angle_speed_R)/dt;
-
-hip_angle_speed_R=diff(hip_angle_R)/dt;
-hip_angle_acc_R = diff(hip_angle_speed_R)/dt;
-
+hip_angle_speed_R=gradient(hip_angle_R,dt);
+hip_angle_acc_R = gradient(hip_angle_speed_R,dt);
 
 %foot
-
 
 CG_foot_y_R=RAJC_y+0.5*(RTOO_y-RAJC_y);
 CG_foot_z_R=RAJC_z+0.5*(RTOO_z-RAJC_z);
 
-CG_foot_speed_z_R = diff(CG_foot_z_R)/dt;
-CG_foot_speed_y_R = diff(CG_foot_y_R)/dt;
+CG_foot_speed_z_R = gradient(CG_foot_z_R,dt);
+CG_foot_speed_y_R = gradient(CG_foot_y_R,dt);
 
-CG_foot_acc_z_R = diff(CG_foot_speed_z_R)/dt;
-CG_foot_acc_y_R = diff(CG_foot_speed_y_R)/dt;
+CG_foot_acc_z_R =gradient(CG_foot_speed_z_R,dt);
+CG_foot_acc_y_R = gradient(CG_foot_speed_y_R,dt);
 
 
 %distances see free body diagram for definition
@@ -261,35 +246,32 @@ dz_Af_R = RAJC_z-CG_foot_z_R;
 dz_Gf_R=CG_foot_z_R-FP2_COP_z;
 dy_Gf_R=FP2_COP_y-CG_foot_y_R;
 
+%preallocate space 
+
+FA_y_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+FA_z_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+MA_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+
 temp=1;
-for i=124:212
-    A1=[1 0 0;
-        0 1 0; 
-        -dz_Af_R(i) -dy_Af_R(i) 1
-        ];
-   b1=[m_f*CG_foot_acc_y_R(i)-FP2_force_y(i); 
-        m_f*CG_foot_acc_z_R(i)-FP2_force_z(i)+m_f*g;
-        I_foot*ankle_angle_acc_R(i)-(FP2_force_y(i)*dz_Gf_R(i)+FP2_force_z(i)*dy_Gf_R(i))];
-
-    X1_R(:,temp)=A1\b1;
-    temp=temp+1;
+for i=right_gait_startframe:right_gait_endframe
+   FA_y_R(temp)=m_f*CG_foot_acc_y_R(i)-FP2_force_y(i);
+   FA_z_R(temp)=m_f*CG_foot_acc_z_R(i)-FP2_force_z(i)+m_f*g;
+   MA_R(temp)=dz_Af_R(i)*FA_y_R(temp)+dy_Af_R(i)*FA_z_R(temp)+I_foot*ankle_angle_acc_R(i)-(FP2_force_y(i)*dz_Gf_R(i)+FP2_force_z(i)*dy_Gf_R(i));  
+   temp=temp+1;
 end
-M_foot_R=X1_R(3,:)';
-P_foot_R=M_foot_R.*ankle_angle_speed_R(124:212);
 
+P_foot_R= MA_R.*ankle_angle_speed_R(right_gait_startframe:right_gait_endframe);
 
 %shank
-
-
 
 CG_shank_y_R=RAJC_y+0.433*(RKJC_y-RAJC_y);
 CG_shank_z_R=RAJC_z+0.433*(RKJC_z-RAJC_z);
 
-CG_shank_speed_z_R = diff(CG_shank_z_R)/dt;
-CG_shank_speed_y_R = diff(CG_shank_y_R)/dt;
+CG_shank_speed_z_R = gradient(CG_shank_z_R,dt);
+CG_shank_speed_y_R = gradient(CG_shank_y_R,dt);
 
-CG_shank_acc_z_R = diff(CG_shank_speed_z_R)/dt;
-CG_shank_acc_y_R= diff(CG_shank_speed_y_R)/dt;
+CG_shank_acc_z_R = gradient(CG_shank_speed_z_R,dt);
+CG_shank_acc_y_R= gradient(CG_shank_speed_y_R,dt);
 
 %distances see free body diagram for definition
 
@@ -298,33 +280,30 @@ d_Ks_y_R=RKJC_y-CG_shank_y_R;
 d_As_y_R=CG_shank_y_R-RAJC_y;
 d_As_z_R=CG_shank_z_R-RAJC_z;
 
+%preallocate space 
 
+FK_y_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+FK_z_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+MK_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
 
 temp=1;
-for i=124:212
-A2=[1 0 0 ; 
-    0 1 0; 
-    -d_Ks_z_R(i) d_Ks_y_R(i) 1];
-
-b2=[m_s*CG_shank_acc_y_R(i)+X1_R(1,temp); 
-    m_s*CG_shank_acc_z_R(i)+X1_R(2,temp)+m_s*g ; 
-    X1_R(3,temp)+X1_R(1,temp)*d_As_z_R(i)-X1_R(2,temp)*d_As_y_R(i)+I_shank*knee_angle_acc_R(i)];
-
-X2_R(:,temp)=A2\b2;
-   temp=temp+1;
+for i=right_gait_startframe:right_gait_endframe
+    FK_y_R(temp)=m_s*CG_shank_acc_y_R(i)+FA_y_R(temp);
+    FK_z_R(temp)=m_s*CG_shank_acc_z_R(i)+FA_z_R(temp)+m_s*g;
+    MK_R(temp)=MA_R(temp)+FA_y_R(temp)*d_As_z_R(i)-FA_z_R(temp)*d_As_y_R(i)+I_shank*knee_angle_acc_R(i)+d_Ks_z_R(i)*FK_y_R(temp)-d_Ks_y_R(i)* FK_z_R(temp);
+    temp=temp+1;
 end
-
 
 %hip
 
 CG_thigh_y_R=RKJC_y+0.433*(RHJC_y-RKJC_y);
 CG_thigh_z_R=RKJC_z+0.433*(RHJC_z-RKJC_z);
 
-CG_thigh_speed_z_R = diff(CG_thigh_z_R)/dt;
-CG_thigh_speed_y_R = diff(CG_thigh_y_R)/dt;
+CG_thigh_speed_z_R = gradient(CG_thigh_z_R,dt);
+CG_thigh_speed_y_R = gradient(CG_thigh_y_R,dt);
 
-CG_thigh_acc_z_R = diff(CG_thigh_speed_z_R)/dt;
-CG_thigh_acc_y_R = diff(CG_thigh_speed_y_R)/dt;
+CG_thigh_acc_z_R = gradient(CG_thigh_speed_z_R,dt);
+CG_thigh_acc_y_R = gradient(CG_thigh_speed_y_R,dt);
 
 %distances see free body diagram for definition
 
@@ -333,26 +312,22 @@ d_Kt_y_R=RKJC_y-CG_thigh_y_R;
 d_Ht_y_R=CG_thigh_y_R-RHJC_y;
 d_Ht_z_R=RHJC_z-CG_thigh_z_R;
 
+%preallocate space 
+
+FH_y_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+FH_z_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
+MH_R=zeros(length(right_gait_startframe:right_gait_endframe),1);
 
 temp=1;
-for i=124:212
-    A3=[1 0 0 ; 
-        0 1 0; 
-        -d_Ht_z_R(i) -d_Ht_y_R(i) 1];
-
-    b3=[m_t*CG_thigh_acc_y_R(i)+X2_R(1,temp); 
-        m_t*CG_thigh_acc_z_R(i)+X2_R(2,temp)+m_t*g ; 
-        X2_R(3,temp)+X2_R(1,temp)*d_Kt_z_R(i)+X2_R(2,temp)*d_Kt_y_R(i)+I_thigh*hip_angle_acc_R(i)];
-
-    X3_R(:,temp)=A3\b3;
-       temp=temp+1;
+for i=right_gait_startframe:right_gait_endframe
+    
+    FH_y_R(temp)=m_t*CG_thigh_acc_y_R(i)+FK_y_R(temp);
+    FH_z_R(temp)=m_t*CG_thigh_acc_z_R(i)+FK_z_R(temp)+m_t*g;
+    MH_R(temp)=MK_R(temp)+FK_y_R(temp)*d_Kt_z_R(i)+FK_z_R(temp)*d_Kt_y_R(i)+I_thigh*hip_angle_acc_R(i)+d_Ht_z_R(i)*FH_y_R(temp)+d_Ht_y_R(i)*FH_z_R(temp);
+    temp=temp+1;
 end
 
-
-
-
-
-%--------------------------left leg calculations-----------------------
+%% --------------------------left leg angle calculations-----------------------
 
 % Hip (left leg)
 left_knee = [LKJC_y LKJC_z];
@@ -373,20 +348,12 @@ left_foot_vec =left_toe-left_ankle;
 
 foot_angle_L = 95 * pi/180+ atan2(cross_product(tibia_left_vec,left_foot_vec), dot_product(tibia_left_vec,left_foot_vec)) ;
 
+%% -------------------------Moments and forces left leg-------------------
 
-% -------------------------Moments and forces left leg-------------------
-
-
-
-%numerical derivation of the angles on the form y_dot=(y(2)-y(1))/dt for y_dotdot repeat
-%with y_dot
 left_gait_startframe=168;
 left_gait_endframe=257;
 
-% ankle_angle_speed_L=(foot_angle_L(3:end)-foot_angle_L(1:end-2))./(2*dt)
-% ankle_angle_acc_L=(ankle_angle_speed_L(3:end)-ankle_angle_speed_L(1:end-2))./(2*dt)
-% 
-% ankle_angle_acc_L=ankle_angle_acc_L(168-2:257-2);
+%numerical derivation using MATLABs gradient function
 
 ankle_angle_speed_L = gradient(foot_angle_L,dt);
 ankle_angle_acc_L = gradient(ankle_angle_speed_L,dt);
@@ -396,7 +363,6 @@ knee_angle_acc_L = gradient(knee_angle_speed_L,dt);
 
 hip_angle_speed_L= gradient(hip_angle_L,dt);
 hip_angle_acc_L = gradient(hip_angle_speed_L,dt);
-
 
 %foot
 
@@ -420,7 +386,6 @@ dz_Af_L = LAJC_z-CG_foot_z_L;
 dz_Gf_L=CG_foot_z_L-FP1_COP_z;
 dy_Gf_L=FP1_COP_y-CG_foot_y_L;
 
-
 %preallocate space 
 
 FA_y_L=zeros(length(left_gait_startframe:left_gait_endframe),1);
@@ -429,12 +394,11 @@ MA_L=zeros(length(left_gait_startframe:left_gait_endframe),1);
 
 %calculate knee forces/moment
     temp=1;
-
 for i=left_gait_startframe:left_gait_endframe
      FA_y_L(temp)=m_f*CG_foot_acc_y_L(i)-FP1_force_y(i);
      FA_z_L(temp)=m_f*CG_foot_acc_z_L(i)-FP1_force_z(i)+m_f*g;
      MA_L(temp)=dz_Af_L(i)*FA_y_L(temp)+dy_Af_L(i)*FA_z_L(temp)+I_foot*ankle_angle_acc_L(i)-(FP1_force_y(i)*dz_Gf_L(i)+FP1_force_z(i)*dy_Gf_L(i));  
-    temp=temp+1;
+     temp=temp+1;
 end
 
 %shank
@@ -468,14 +432,11 @@ MK_L=zeros(length(left_gait_startframe:left_gait_endframe),1);
 %calculate knee forces/moment
     temp=1;
 for i=left_gait_startframe:left_gait_endframe
-     
     FK_y_L(temp)=m_s*CG_shank_acc_y_L(i)+FA_y_L(temp);
     FK_z_L(temp)=m_s*CG_shank_acc_z_L(i)+FA_z_L(temp)+m_s*g;
     MK_L(temp)=MA_L(temp)+FA_y_L(temp)*d_As_z_L(i)-FA_z_L(temp)*d_As_y_L(i)+I_shank*knee_angle_acc_L(i)+d_Ks_z_R(i)*FK_y_L(temp)-d_Ks_y_L(i)* FK_z_L(temp);
-   
     temp=temp+1;
 end
-
 
 %hip
 
@@ -495,7 +456,6 @@ d_Kt_y_L=LKJC_y-CG_thigh_y_L;
 d_Ht_y_L=CG_thigh_y_L-LHJC_y;
 d_Ht_z_L=LHJC_z-CG_thigh_z_L;
 
-
 %preallocate space 
 
 FH_y_L=zeros(length(left_gait_startframe:left_gait_endframe),1);
@@ -514,13 +474,8 @@ for i=left_gait_startframe:left_gait_endframe
     temp=temp+1;
 end
 
+%% --------------------------------plots---------------------------------
 
-
-
-%--------------------------------plots---------------------------------
-
-
-%plots
 figure(1)
 subplot(3,2,1)
 plot(time(124:257),trunk_angle(124:257)*180/pi,LineWidth=1.5)
@@ -555,7 +510,7 @@ title("foot angle")
 legend("Right leg")
 
 figure(2)
-plot((124-124:212-124)*(100/(212-124)),X1_R(3,:)/(61.9))
+plot((124-124:212-124)*(100/(212-124)), MA_R/(61.9))
 hold on
 plot((168-168:257-168)*(100/(257-168)), MA_L/(61.9))
 title("Ankle")
@@ -565,7 +520,7 @@ legend("Right leg","Left leg")
 hold off
 
 figure(3)
-plot((124-124:212-124)*(100/(212-124)),X2_R(3,:)/(61.9))
+plot((124-124:212-124)*(100/(212-124)),MK_R/(61.9))
 hold on
 plot((168-168:257-168)*(100/(257-168)), MK_L/(61.9))
 title("Knee")
@@ -575,7 +530,7 @@ legend("Right leg","Left leg")
 hold off
 
 figure(4)
-plot((124-124:212-124)*(100/(212-124)),X3_R(3,:)/(61.9))
+plot((124-124:212-124)*(100/(212-124)),MH_R/(61.9))
 hold on
 plot((168-168:257-168)*(100/(257-168)), MH_L/(61.9))
 hold off
@@ -588,8 +543,6 @@ figure(5)
 plot((124-124:212-124)*(100/(212-124)),P_foot_R/(61.9))
 xlabel("gait / %")
 ylabel("Power / W/kg")
-
-
 
 %--------------------------------functions-------------------------------
 
