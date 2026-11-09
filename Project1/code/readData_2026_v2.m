@@ -6,7 +6,7 @@ clc;
 
 name_motion={'Walking'    'Jogging'   'Crouch'};
 name_grf   ={'Walking_FP' 'Jogging_FP' 'Crouch_FP'};
-
+%%
 index = 1; % select the motion to be loaded and visualized e.g., index=1 -> NormWalk
 
 %% Read data (data files should be in the same folder as the .m file)
@@ -83,6 +83,88 @@ FP2_force_z = data_grf_s.FP2_Force_Z; % vertical coordinate of the ground reacti
 FP2_COP_y = (-600 - data_grf_s.FP2_COP_Y) * toMeters; % horizontal coordinate of the COP in FP2
 FP2_COP_z = data_grf_s.FP2_COP_Z*toMeters; % vertical coordinate of the COP in FP2
 
+
+
+%% crouch
+index = 3; % select the motion to be loaded and visualized e.g., index=1 -> NormWalk
+
+%% Read data (data files should be in the same folder as the .m file)
+
+file_dir = pwd;
+data_trc = readtable(fullfile(file_dir,[name_motion{index} '.csv']));
+data_grf = readtable(fullfile(file_dir,[name_grf{index} '.csv']));
+
+%% Downsample ground reaction data, so it has the same length as marker trajectory
+
+data_grf_s = downsample(data_grf,10);
+time_crouch=data_grf_s.Time;
+
+%% Assign the uploaded table to variables in MATLAB
+toMeters = 1/1000; % data is originally in mm, it has to be divided by 1000 to have it in meters
+
+% Thorax origin
+TRXO_crouch_y = data_trc.TRXO_Y * toMeters; % horizontal coordinate of the thorax origin
+TRXO_crouch_z = data_trc.TRXO_Z * toMeters; % vertical coordinate of the thorax origin
+
+% Thorax proximal
+TRXP_crouch_y = data_trc.TRXP_Y * toMeters; % horizontal coordinate of the thorax proximal
+TRXP_crouch_z = data_trc.TRXP_Z * toMeters; % vertical coordinate of the thorax proximal
+
+% Pelvis proximal
+PELP_crouch_y = data_trc.PELP_Y * toMeters; % horizontal coordinate of the pelvis proximal
+PELP_crouch_z = data_trc.PELP_Z * toMeters; % vertical coordinate of the pelvis proximal
+
+% Pelvis origin
+PELO_crouch_y = data_trc.PELO_Y * toMeters; % horizontal coordinate of the pelvis origin
+PELO_crouch_z = data_trc.PELO_Z * toMeters; % vertical coordinate of the pelvis origin
+
+% Right hip
+RHJC_crouch_y = data_trc.RHJC_Y * toMeters; % horizontal coordinate of the right hip
+RHJC_crouch_z = data_trc.RHJC_Z * toMeters; % vertical coordinate of the right hip
+
+% Left hip
+LHJC_crouch_y = data_trc.LHJC_Y * toMeters; % horizontal coordinate of the left hip
+LHJC_crouch_z = data_trc.LHJC_Z * toMeters; % vertical coordinate of the left hip
+
+% Right knee
+RKJC_crouch_y = data_trc.RKJC_Y * toMeters; % horizontal coordinate of the right knee
+RKJC_crouch_z = data_trc.RKJC_Z * toMeters; % vertical coordinate of the right knee
+
+% Left knee
+LKJC_crouch_y = data_trc.LKJC_Y * toMeters; % horizontal coordinate of the left knee
+LKJC_crouch_z = data_trc.LKJC_Z * toMeters; % vertical coordinate of the left knee
+
+% Right ankle
+RAJC_crouch_y = data_trc.RAJC_Y * toMeters; % horizontal coordinate of the right ankle
+RAJC_crouch_z = data_trc.RAJC_Z * toMeters; % vertical coordinate of the right ankle
+
+% Left ankle
+LAJC_crouch_y = data_trc.LAJC_Y * toMeters; % horizontal coordinate of the left ankle
+LAJC_crouch_z = data_trc.LAJC_Z * toMeters; % vertical coordinate of the left ankle
+
+% Right toe
+RTOO_crouch_y = data_trc.RTOO_Y * toMeters; % horizontal coordinate of the right toe
+RTOO_crouch_z = data_trc.RTOO_Z * toMeters; % vertical coordinate of the right toe
+
+% Left toe
+LTOO_crouch_y = data_trc.LTOO_Y * toMeters; % horizontal coordinate of the left toe
+LTOO_crouch_z = data_trc.LTOO_Z * toMeters; % vertical coordinate of the left toe 
+
+% FP1
+FP1_force_crouch_y = data_grf_s.FP1_Force_Y; % horizontal coordinate of the ground reaction force in FP1
+FP1_force_crouch_z = data_grf_s.FP1_Force_Z; % vertical coordinate of the ground reaction force in FP1
+FP1_COP_crouch_y = (600 - data_grf_s.FP1_COP_Y) * toMeters; % horizontal coordinate of the COP in FP1
+FP1_COP_crouch_z = data_grf_s.FP1_COP_Z * toMeters; % vertical coordinate of the COP in FP1
+
+% FP2
+FP2_force_crouch_y = data_grf_s.FP2_Force_Y; % horizontal coordinate of the ground reaction force in FP2
+FP2_force_crouch_z = data_grf_s.FP2_Force_Z; % vertical coordinate of the ground reaction force in FP2
+FP2_COP_crouch_y = (-600 - data_grf_s.FP2_COP_Y) * toMeters; % horizontal coordinate of the COP in FP2
+FP2_COP_crouch_z = data_grf_s.FP2_COP_Z*toMeters; % vertical coordinate of the COP in FP2
+
+
+
+
 %% Run a simple animation for visualization purposes only
 
 run_animation = false ;
@@ -92,7 +174,7 @@ row = height(data_trc);
 if run_animation == true
     figure('color','w','Position', [10 10 1200 700]);
 
-    % Start from frame 50th as the coordinates at the first few frames werenot processed and they are not considered in the assignment
+    % Start from frame 50th as the coordinates at the first few frames were not processed and they are not considered in the assignment
 
     for i=1:1:row
 
@@ -143,25 +225,7 @@ if run_animation == true
     end
 end
 
-%% Angle calculations
-
-% Trunk
-TRXO = [TRXO_y TRXO_z];
-TRXP = [TRXP_y TRXP_z];
-trunk_vec = TRXO - TRXP;
-z_vec = [zeros(size(trunk_vec, 1), 1), ones(size(trunk_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
-
-trunk_angle = atan2(cross_product(trunk_vec, z_vec), dot_product(trunk_vec, z_vec));
-
-% Pelvis
-PELP = [PELP_y PELP_z];
-PELO = [PELO_y PELO_z];
-pelvis_vec = PELP - PELO;
-z_vec = [zeros(size(pelvis_vec, 1), 1), ones(size(pelvis_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
-
-pelvis_angle = atan2(cross_product(pelvis_vec, z_vec), dot_product(pelvis_vec, z_vec)) ;
-
-%Known  for both legs
+%% Known  for both legs
 %all anthropometric data taken from ISBN 9780470398180: 
 % Biomechanics and Motor Control of Human Movement David A Winter
 
@@ -190,6 +254,24 @@ m_t=0.1*total_mass;
 thigh_length=(0.530-(0.285+0.039))*total_length;
 center_of_gyration_thigh=0.323*thigh_length;
 I_thigh=center_of_gyration_thigh^2*m_t;
+
+%% Angle calculations
+
+% Trunk
+TRXO = [TRXO_y TRXO_z];
+TRXP = [TRXP_y TRXP_z];
+trunk_vec = TRXO - TRXP;
+z_vec = [zeros(size(trunk_vec, 1), 1), ones(size(trunk_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
+
+trunk_angle = atan2(cross_product(trunk_vec, z_vec), dot_product(trunk_vec, z_vec));
+
+% Pelvis
+PELP = [PELP_y PELP_z];
+PELO = [PELO_y PELO_z];
+pelvis_vec = PELP - PELO;
+z_vec = [zeros(size(pelvis_vec, 1), 1), ones(size(pelvis_vec, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
+
+pelvis_angle = atan2(cross_product(pelvis_vec, z_vec), dot_product(pelvis_vec, z_vec)) ;
 
 %% --------------------------right leg angle calculations-----------------------
 right_gait_startframe=124;
@@ -260,7 +342,7 @@ for i=right_gait_startframe:right_gait_endframe
    temp=temp+1;
 end
 
-P_foot_R= MA_R.*ankle_angle_speed_R(right_gait_startframe:right_gait_endframe);
+P_foot_R = MA_R.*ankle_angle_speed_R(right_gait_startframe:right_gait_endframe);
 
 %shank
 
@@ -294,6 +376,8 @@ for i=right_gait_startframe:right_gait_endframe
     temp=temp+1;
 end
 
+P_knee_R = MK_R.*knee_angle_speed_R(right_gait_startframe:right_gait_endframe);
+
 %hip
 
 CG_thigh_y_R=RKJC_y+0.433*(RHJC_y-RKJC_y);
@@ -326,6 +410,8 @@ for i=right_gait_startframe:right_gait_endframe
     MH_R(temp)=MK_R(temp)+FK_y_R(temp)*d_Kt_z_R(i)+FK_z_R(temp)*d_Kt_y_R(i)+I_thigh*hip_angle_acc_R(i)+d_Ht_z_R(i)*FH_y_R(temp)+d_Ht_y_R(i)*FH_z_R(temp);
     temp=temp+1;
 end
+
+P_hip_R = MH_R.*hip_angle_speed_R(right_gait_startframe:right_gait_endframe);
 
 %% --------------------------left leg angle calculations-----------------------
 
@@ -401,6 +487,8 @@ for i=left_gait_startframe:left_gait_endframe
      temp=temp+1;
 end
 
+P_foot_L = MA_L.*ankle_angle_speed_L(left_gait_startframe:left_gait_endframe);
+
 %shank
 
 %calculate center of gravity for shank segment from using proximal segment length 
@@ -438,6 +526,8 @@ for i=left_gait_startframe:left_gait_endframe
     temp=temp+1;
 end
 
+P_knee_L = MK_L.*knee_angle_speed_L(left_gait_startframe:left_gait_endframe);
+
 %hip
 
 CG_thigh_y_L=LKJC_y+0.433*(LHJC_y-LKJC_y);
@@ -474,75 +564,419 @@ for i=left_gait_startframe:left_gait_endframe
     temp=temp+1;
 end
 
-%% --------------------------------plots---------------------------------
+P_hip_L = MH_L.*hip_angle_speed_L(left_gait_startframe:left_gait_endframe);
+
+%% ---------------right leg crouch walk------------------------------
+
+% Trunk
+TRXO_crouch = [TRXO_crouch_y TRXO_crouch_z];
+TRXP_crouch = [TRXP_crouch_y TRXP_crouch_z];
+trunk_vec_crouch = TRXO_crouch - TRXP_crouch;
+z_vec_crouch = [zeros(size(trunk_vec_crouch, 1), 1), ones(size(trunk_vec_crouch, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
+
+% trunk_angle_crouch = atan2(cross_product(trunk_vec_crouch, z_vec_crouch), dot_product(trunk_vec_crouch, z_vec_crouch));
+trunk_angle_crouch = atan2(cross_product( z_vec_crouch,trunk_vec_crouch), dot_product( z_vec_crouch,trunk_vec_crouch));
+
+% Pelvis
+PELP_crouch = [PELP_crouch_y PELP_crouch_z];
+PELO_crouch = [PELO_crouch_y PELO_crouch_z];
+pelvis_vec_crouch = PELP_crouch - PELO_crouch;
+z_vec_crouch = [zeros(size(pelvis_vec_crouch, 1), 1), ones(size(pelvis_vec_crouch, 1), 1)]; % is [0 1] for every frame (which corresponds to the z-axis)
+
+% pelvis_angle_crouch = atan2(cross_product(pelvis_vec_crouch, z_vec_crouch), dot_product(pelvis_vec_crouch, z_vec_crouch)) ;
+pelvis_angle_crouch = atan2(cross_product( z_vec_crouch,pelvis_vec_crouch), dot_product(z_vec_crouch,pelvis_vec_crouch)) ;
+
+
+%% --------------------------right leg angle calculations-----------------------
+right_gait_startframe_crouch=190;
+right_gait_endframe_crouch=288;
+
+% Hip (right leg)
+right_knee_crouch = [RKJC_crouch_y RKJC_crouch_z];
+right_hip_crouch =[RHJC_crouch_y RHJC_crouch_z];
+femur_right_vec_crouch = right_hip_crouch - right_knee_crouch;
+
+% hip_angle_crouch_R = atan2(cross_product(pelvis_vec_crouch, femur_right_vec_crouch), dot_product(pelvis_vec_crouch, femur_right_vec_crouch));
+hip_angle_crouch_R = atan2(cross_product( femur_right_vec_crouch,pelvis_vec_crouch), dot_product(pelvis_vec_crouch, femur_right_vec_crouch));
+
+% Knee (right leg)
+right_ankle_crouch = [RAJC_crouch_y RAJC_crouch_z];
+tibia_right_vec_crouch = right_knee_crouch - right_ankle_crouch;
+
+% knee_angle_crouch_R = atan2(cross_product(tibia_right_vec_crouch, femur_right_vec_crouch), dot_product(tibia_right_vec_crouch, femur_right_vec_crouch)) ;
+knee_angle_crouch_R = atan2(cross_product( femur_right_vec_crouch,tibia_right_vec_crouch), dot_product( femur_right_vec_crouch,tibia_right_vec_crouch)) ;
+
+% Ankle (right leg)
+right_foot_crouch = [RTOO_crouch_y RTOO_crouch_z];
+right_foot_vec_crouch = right_foot_crouch - right_ankle_crouch;
+
+% foot_angle_crouch_R = 95 * pi/180+ atan2(cross_product(tibia_right_vec_crouch, right_foot_vec_crouch), dot_product(tibia_right_vec_crouch, right_foot_vec_crouch)) ;
+foot_angle_crouch_R = 95 * pi/180+ atan2(cross_product( right_foot_vec_crouch,tibia_right_vec_crouch), dot_product( right_foot_vec_crouch,tibia_right_vec_crouch)) ;
+
+%% -------------------------Moments and forces right leg-------------------
+
+%numerical derivation using MATLABs gradient function
+
+ankle_angle_speed_crouch_R = gradient(foot_angle_crouch_R,dt);
+ankle_angle_acc_crouch_R = gradient(ankle_angle_speed_crouch_R,dt);
+
+knee_angle_speed_crouch_R = gradient(knee_angle_crouch_R,dt);
+knee_angle_acc_crouch_R = gradient(knee_angle_speed_crouch_R,dt);
+
+hip_angle_speed_crouch_R=gradient(hip_angle_crouch_R,dt);
+hip_angle_acc_crouch_R = gradient(hip_angle_speed_crouch_R,dt);
+
+%foot
+
+CG_foot_y_crouch_R=RAJC_crouch_y+0.5*(RTOO_crouch_y-RAJC_crouch_y);
+CG_foot_z_crouch_R=RAJC_crouch_z+0.5*(RTOO_crouch_z-RAJC_crouch_z);
+
+CG_foot_speed_z_crouch_R = gradient(CG_foot_z_crouch_R,dt);
+CG_foot_speed_y_crouch_R = gradient(CG_foot_y_crouch_R,dt);
+
+CG_foot_acc_z_crouch_R =gradient(CG_foot_speed_z_crouch_R,dt);
+CG_foot_acc_y_crouch_R = gradient(CG_foot_speed_y_crouch_R,dt);
+
+
+%distances see free body diagram for definition
+
+dy_Af_crouch_R = CG_foot_y_crouch_R-RAJC_crouch_y;
+dz_Af_crouch_R = RAJC_crouch_z-CG_foot_z_crouch_R;
+dz_Gf_crouch_R=CG_foot_z_crouch_R-FP2_COP_crouch_z;
+dy_Gf_crouch_R=FP2_COP_crouch_y-CG_foot_y_crouch_R;
+
+%preallocate space 
+
+FA_y_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+FA_z_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+MA_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+
+temp=1;
+for i=right_gait_startframe_crouch:right_gait_endframe_crouch
+   FA_y_crouch_R(temp)=m_f*CG_foot_acc_y_crouch_R(i)-FP2_force_crouch_y(i);
+   FA_z_crouch_R(temp)=m_f*CG_foot_acc_z_crouch_R(i)-FP2_force_crouch_z(i)+m_f*g;
+   MA_crouch_R(temp)=dz_Af_crouch_R(i)*FA_y_crouch_R(temp)+dy_Af_crouch_R(i)*FA_z_crouch_R(temp)+I_foot*ankle_angle_acc_crouch_R(i)-(FP2_force_crouch_y(i)*dz_Gf_crouch_R(i)+FP2_force_crouch_z(i)*dy_Gf_crouch_R(i));  
+   temp=temp+1;
+end
+
+P_foot_crouch_R= MA_crouch_R.*ankle_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
+
+%shank
+
+CG_shank_y_crouch_R=RAJC_crouch_y+0.433*(RKJC_crouch_y-RAJC_crouch_y);
+CG_shank_z_crouch_R=RAJC_crouch_z+0.433*(RKJC_crouch_z-RAJC_crouch_z);
+
+CG_shank_speed_z_crouch_R = gradient(CG_shank_z_crouch_R,dt);
+CG_shank_speed_y_crouch_R = gradient(CG_shank_y_crouch_R,dt);
+
+CG_shank_acc_z_crouch_R = gradient(CG_shank_speed_z_crouch_R,dt);
+CG_shank_acc_y_crouch_R= gradient(CG_shank_speed_y_crouch_R,dt);
+
+%distances see free body diagram for definition
+
+d_Ks_z_crouch_R=RKJC_crouch_z-CG_shank_z_crouch_R;
+d_Ks_y_crouch_R=RKJC_crouch_y-CG_shank_y_crouch_R;
+d_As_y_crouch_R=CG_shank_y_crouch_R-RAJC_crouch_y;
+d_As_z_crouch_R=CG_shank_z_crouch_R-RAJC_crouch_z;
+
+%preallocate space 
+
+FK_y_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+FK_z_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+MK_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+
+temp=1;
+for i=right_gait_startframe_crouch:right_gait_endframe_crouch
+    FK_y_crouch_R(temp)=m_s*CG_shank_acc_y_crouch_R(i)+FA_y_crouch_R(temp);
+    FK_z_crouch_R(temp)=m_s*CG_shank_acc_z_crouch_R(i)+FA_z_crouch_R(temp)+m_s*g;
+    MK_crouch_R(temp)=MA_crouch_R(temp)+FA_y_crouch_R(temp)*d_As_z_crouch_R(i)-FA_z_crouch_R(temp)*d_As_y_crouch_R(i)+I_shank*knee_angle_acc_crouch_R(i)+d_Ks_z_crouch_R(i)*FK_y_crouch_R(temp)-d_Ks_y_crouch_R(i)* FK_z_crouch_R(temp);
+    temp=temp+1;
+end
+
+P_knee_crouch_R= MK_crouch_R.*knee_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
+
+%hip
+
+CG_thigh_y_crouch_R=RKJC_crouch_y+0.433*(RHJC_crouch_y-RKJC_crouch_y);
+CG_thigh_z_crouch_R=RKJC_crouch_z+0.433*(RHJC_crouch_z-RKJC_crouch_z);
+
+CG_thigh_speed_z_crouch_R = gradient(CG_thigh_z_crouch_R,dt);
+CG_thigh_speed_y_crouch_R = gradient(CG_thigh_y_crouch_R,dt);
+
+CG_thigh_acc_z_crouch_R = gradient(CG_thigh_speed_z_crouch_R,dt);
+CG_thigh_acc_y_crouch_R = gradient(CG_thigh_speed_y_crouch_R,dt);
+
+%distances see free body diagram for definition
+
+d_Kt_z_crouch_R=CG_thigh_z_crouch_R-RKJC_crouch_z;
+d_Kt_y_crouch_R=RKJC_crouch_y-CG_thigh_y_crouch_R;
+d_Ht_y_crouch_R=CG_thigh_y_crouch_R-RHJC_crouch_y;
+d_Ht_z_crouch_R=RHJC_crouch_z-CG_thigh_z_crouch_R;
+
+%preallocate space 
+
+FH_y_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+FH_z_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+MH_crouch_R=zeros(length(right_gait_startframe_crouch:right_gait_endframe_crouch),1);
+
+temp=1;
+for i=right_gait_startframe_crouch:right_gait_endframe_crouch
+    
+    FH_y_crouch_R(temp)=m_t*CG_thigh_acc_y_crouch_R(i)+FK_y_crouch_R(temp);
+    FH_z_crouch_R(temp)=m_t*CG_thigh_acc_z_crouch_R(i)+FK_z_crouch_R(temp)+m_t*g;
+    MH_crouch_R(temp)=MK_crouch_R(temp)+FK_y_crouch_R(temp)*d_Kt_z_crouch_R(i)+FK_z_crouch_R(temp)*d_Kt_y_crouch_R(i)+I_thigh*hip_angle_acc_crouch_R(i)+d_Ht_z_crouch_R(i)*FH_y_crouch_R(temp)+d_Ht_y_crouch_R(i)*FH_z_crouch_R(temp);
+    temp=temp+1;
+end
+
+P_hip_crouch_R= MH_crouch_R.*hip_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
+
+%%-----------------plots----------------------------------
+X_axis_gait_R=(right_gait_startframe-right_gait_startframe:right_gait_endframe-right_gait_startframe)*(100/(right_gait_endframe-right_gait_startframe));
+X_axis_gait_L=(left_gait_startframe-left_gait_startframe:left_gait_endframe-left_gait_startframe)*(100/(left_gait_endframe-left_gait_startframe));
+X_axis_gait_crouch_R=(right_gait_startframe_crouch-right_gait_startframe_crouch:right_gait_endframe_crouch-right_gait_startframe_crouch)*(100/(right_gait_endframe_crouch-right_gait_startframe_crouch));
 
 figure(1)
-subplot(3,2,1)
-plot(time(124:257),trunk_angle(124:257)*180/pi,LineWidth=1.5)
+subplot(3,3,1)
+plot(X_axis_gait_R,trunk_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on 
+plot(X_axis_gait_L,trunk_angle(left_gait_startframe:left_gait_endframe)*180/pi,LineWidth=1.5,color="b")
 title("Trunk angle")
-xlabel("time / s")
+xlabel("gait / %")
 ylabel("Trunk angle / deg")
+legend("Right","Left")
+xlim([0 100])
+hold off
 
-subplot(3,2,2)
-plot(time(124:257),pelvis_angle(124:257)*180/pi,LineWidth=1.5)
-xlabel("time / s")
+subplot(3,3,2)
+plot(X_axis_gait_R,pelvis_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_L,pelvis_angle(left_gait_startframe:left_gait_endframe)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
 ylabel("Pelvis angle / deg")
 title("Pelvis angle")
+legend("Right","Left")
+xlim([0 100])
+hold off
 
-subplot(3,2,3)
-plot(time(124:257),hip_angle_R(124:257)*180/pi,LineWidth=1.5)
-xlabel("time / s")
+subplot(3,3,3)
+plot(X_axis_gait_R,hip_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_L,hip_angle_L(left_gait_startframe:left_gait_endframe)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
 ylabel("Hip angle / deg")
 title("Hip angle")
+legend("Right","Left")
+xlim([0 100])
+hold off
 
-subplot(3,2,4)
-plot(time(124:212),knee_angle_R(124:212)*180/pi,LineWidth=1.5)
-xlabel("time / s")
+subplot(3,3,4)
+plot(X_axis_gait_R,knee_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_L,knee_angle_L(left_gait_startframe:left_gait_endframe)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
 ylabel("Knee angle / deg")
 title("Knee angle")
-legend("Right leg")
+legend("Right","Left")
+xlim([0 100])
+hold off
 
-subplot(3,2,5)
-plot(time(124:212),foot_angle_R(124:212)*180/pi,LineWidth=1.5)
-xlabel("time / s")
+subplot(3,3,5)
+plot(X_axis_gait_R,foot_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_L,foot_angle_L(left_gait_startframe:left_gait_endframe)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
 ylabel("Foot angle / deg")
 title("foot angle")
-legend("Right leg")
+legend("Right","Left")
+xlim([0 100])
+
+hold off
 
 figure(2)
-plot((124-124:212-124)*(100/(212-124)), MA_R/(61.9))
+
+subplot(3,3,1)
+plot(X_axis_gait_R,MA_R/total_mass,color="r")
 hold on
-plot((168-168:257-168)*(100/(257-168)), MA_L/(61.9))
-title("Ankle")
+plot(X_axis_gait_L,MA_L/total_mass,color="b")
 xlabel("gait / %")
 ylabel("moment / Nm/kg")
-legend("Right leg","Left leg")
+title("Ankle")
+legend("Right","Left")
+xlim([0 100])
+hold off
+
+subplot(3,3,2)
+plot(X_axis_gait_R,MK_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_L,MK_L/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+title("Knee")
+legend("Right","Left")
+xlim([0 100])
+hold off
+
+subplot(3,3,3)
+plot(X_axis_gait_R,MH_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_L,MH_L/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+title("Hip")
+legend("Right","Left")
+xlim([0 100])
+hold off
+
+subplot(3,3,4)
+plot(X_axis_gait_R,P_foot_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_L,P_foot_L/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+legend("Right","Left")
+xlim([0 100])
+hold off
+
+subplot(3,3,5)
+plot(X_axis_gait_R,P_knee_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_L,P_knee_L/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+legend("Right","Left")
+xlim([0 100])
+hold off
+
+subplot(3,3,6)
+plot(X_axis_gait_R,P_hip_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_L,P_hip_L/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+legend("Right","Left")
+xlim([0 100])
 hold off
 
 figure(3)
-plot((124-124:212-124)*(100/(212-124)),MK_R/(61.9))
-hold on
-plot((168-168:257-168)*(100/(257-168)), MK_L/(61.9))
-title("Knee")
+subplot(3,3,1)
+plot(X_axis_gait_R,trunk_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on 
+plot(X_axis_gait_crouch_R,trunk_angle_crouch(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
+title("Trunk angle")
 xlabel("gait / %")
-ylabel("moment / Nm/kg")
-legend("Right leg","Left leg")
+ylabel("Trunk angle / deg")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,2)
+plot(X_axis_gait_R,pelvis_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_crouch_R,pelvis_angle_crouch(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
+ylabel("Pelvis angle / deg")
+title("Pelvis angle")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,3)
+plot(X_axis_gait_R,hip_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_crouch_R,hip_angle_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
+ylabel("Hip angle / deg")
+title("Hip angle")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,4)
+plot(X_axis_gait_R,knee_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_crouch_R,knee_angle_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
+ylabel("Knee angle / deg")
+title("Knee angle")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,5)
+plot(X_axis_gait_R,foot_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
+hold on
+plot(X_axis_gait_crouch_R,foot_angle_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
+xlabel("gait / %")
+ylabel("Foot angle / deg")
+title("foot angle")
+legend("Walking","Crouch")
+xlim([0 100])
 hold off
 
 figure(4)
-plot((124-124:212-124)*(100/(212-124)),MH_R/(61.9))
+
+subplot(3,3,1)
+plot(X_axis_gait_R,MA_R/total_mass,color="r")
 hold on
-plot((168-168:257-168)*(100/(257-168)), MH_L/(61.9))
-hold off
-title("Hip")
+plot(X_axis_gait_crouch_R,MA_crouch_R/total_mass,color="b")
 xlabel("gait / %")
 ylabel("moment / Nm/kg")
-legend("Right leg","Left leg")
+title("Ankle")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
 
-figure(5)
-plot((124-124:212-124)*(100/(212-124)),P_foot_R/(61.9))
+subplot(3,3,2)
+plot(X_axis_gait_R,MK_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,MK_crouch_R/total_mass,color="b")
 xlabel("gait / %")
-ylabel("Power / W/kg")
+ylabel("moment / Nm/kg")
+title("Knee")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,3)
+plot(X_axis_gait_R,MH_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,MH_crouch_R/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+title("Hip")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,4)
+plot(X_axis_gait_R,P_foot_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,P_foot_crouch_R/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,5)
+plot(X_axis_gait_R,P_knee_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,P_knee_crouch_R/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,6)
+plot(X_axis_gait_R,P_hip_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,P_hip_crouch_R/total_mass,color="b")
+xlabel("gait / %")
+ylabel("moment / Nm/kg")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
 
 %--------------------------------functions-------------------------------
 
@@ -564,47 +998,3 @@ end
 % end
 
 
-% function [foot_angle]=calculate_foot_angle(TOE,ANKLE,KNEE)
-% 
-%     Foot =  TOE- ANKLE;
-%     shank = KNEE-ANKLE;
-% 
-%     u = shank;
-%     v = Foot;
-% 
-%     cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
-%     dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
-% 
-% 
-% 
-%     foot_angle = (95*pi/180) + atan2(cp, dp);% * 180/pi;
-% end
-% 
-% function [knee_angle]=calculate_knee_angle(ANKLE,KNEE,HIP)
-% 
-%     femur=HIP-KNEE;
-%     shank = KNEE-ANKLE;
-% 
-%     u = shank;
-%     v = femur;
-% 
-%     cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
-%     dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
-% 
-%     knee_angle = atan2(cp, dp);% * 180/pi;
-% end
-% 
-% 
-% function   [hip_angle]=calculate_hip_angle(KNEE,HIP,PELP,PELO)
-% 
-% femur=HIP-KNEE;
-% Pelvis=PELP-PELO;
-% 
-% u = femur;
-% v = Pelvis;
-% 
-% cp = (u(:, 1) .* v(:, 2)) - (u(:, 2) .* v(:, 1)); % cp = cross product, inget annat...
-% dp = (u(:, 1) .* v(:, 1)) + (u(:, 2) .* v(:, 2)); % dp = dot product, inget annat!
-% 
-% hip_angle = atan2(cp, dp) * -1;% * 180/pi *-1;
-% end
