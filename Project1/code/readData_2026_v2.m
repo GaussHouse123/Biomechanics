@@ -167,7 +167,7 @@ FP2_COP_crouch_z = data_grf_s.FP2_COP_Z*toMeters; % vertical coordinate of the C
 
 %% Run a simple animation for visualization purposes only
 
-run_animation = false ;
+run_animation = false;
 color_body = "#0077be";
 row = height(data_trc);
 
@@ -567,8 +567,8 @@ end
 P_hip_L = MH_L.*hip_angle_speed_L(left_gait_startframe:left_gait_endframe);
 
 %% ---------------right leg crouch walk------------------------------
-right_gait_startframe_crouch=123;
-right_gait_endframe_crouch=180;
+right_gait_startframe_crouch=122;
+right_gait_endframe_crouch=220;
 
 % Trunk
 TRXO_crouch = [TRXO_crouch_y TRXO_crouch_z];
@@ -660,7 +660,7 @@ for i=right_gait_startframe_crouch:right_gait_endframe_crouch
    temp=temp+1;
 end
 
-P_foot_crouch_R= MA_crouch_R.*ankle_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
+P_foot_crouch_R= -MA_crouch_R.*ankle_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
 
 %shank
 
@@ -694,7 +694,7 @@ for i=right_gait_startframe_crouch:right_gait_endframe_crouch
     temp=temp+1;
 end
 
-P_knee_crouch_R= MK_crouch_R.*knee_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
+P_knee_crouch_R= -MK_crouch_R.*knee_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
 
 %hip
 
@@ -729,7 +729,7 @@ for i=right_gait_startframe_crouch:right_gait_endframe_crouch
     temp=temp+1;
 end
 
-P_hip_crouch_R= MH_crouch_R.*hip_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
+P_hip_crouch_R= -MH_crouch_R.*hip_angle_speed_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch);
 
 %%-----------------plots----------------------------------
 X_axis_gait_R=(right_gait_startframe-right_gait_startframe:right_gait_endframe-right_gait_startframe)*(100/(right_gait_endframe-right_gait_startframe));
@@ -748,20 +748,20 @@ ylabel("deg")
 legend("Right","Left")
 xlim([0 100])
 ylim([-1 4])
-text(ax,-0.15, 0.85, 'Flexion.', ...
+text(ax,-0.15, 0.85, 'Anterior.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
-text(ax,-0.15, 0.1, 'Extension.', ...
+text(ax,-0.15, 0.1, 'Posterior.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 grid on
 hold off
 
-subplot(3,3,2)
+ax=subplot(3,3,2);
 plot(X_axis_gait_R,pelvis_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_L,pelvis_angle(left_gait_startframe:left_gait_endframe)*180/pi,LineWidth=1.5,color="b")
@@ -770,8 +770,17 @@ ylabel("deg")
 title("Pelvis angle")
 legend("Right","Left","Location","southwest")
 xlim([0 100])
-
-
+ylim([-1 18])
+text(ax,-0.15, 0.85, 'Anterior.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+text(ax,-0.15, -0.1, 'Posterior.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
 grid on
 hold off
 
@@ -786,12 +795,12 @@ legend("Right","Left","Location","north")
 xlim([0 100])
 text(ax,-0.15, 0.85, 'Flexion.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 text(ax,-0.15, 0.1, 'Extension.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 grid on
@@ -809,12 +818,12 @@ grid on
 xlim([0 100])
 text(ax,-0.15, 0.85, 'Flexion.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 text(ax,-0.15, -0.1, 'Extension.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 hold off
@@ -831,167 +840,209 @@ grid on
 xlim([0 100])
 text(ax,-0.15, 0.85, 'dorsi.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 text(ax,-0.15, 0.15, 'plantar.', ...
     'Units', 'normalized', ...
-    'FontSize', 12, ...
+    'FontSize', 8, ...
     'HorizontalAlignment', 'center', ...
     'Clipping', 'off');
 hold off
 
-% exportgraphics(gcf,'walking_angles_LeftVRight.png','Resolution',300)
+%exportgraphics(gcf,'walking_angles_LeftVRight.png','Resolution',600)
 
 figure(2)
 
 subplot(3,3,1)
-plot(X_axis_gait_R,MA_R/total_mass,color="r")
+plot(X_axis_gait_R,MH_R/total_mass,LineWidth=1.5,color="r")
 hold on
-plot(X_axis_gait_L,MA_L/total_mass,color="b")
+plot(X_axis_gait_L,MH_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("moment / Nm/kg")
-title("Ankle")
+ylabel(" Nm/kg")
+title("Hip")
 legend("Right","Left")
 xlim([0 100])
 hold off
 
+
 subplot(3,3,2)
-plot(X_axis_gait_R,MK_R/total_mass,color="r")
+plot(X_axis_gait_R,MK_R/total_mass,LineWidth=1.5,color="r")
 hold on
-plot(X_axis_gait_L,MK_L/total_mass,color="b")
+plot(X_axis_gait_L,MK_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("moment / Nm/kg")
+ylabel("Nm/kg")
 title("Knee")
 legend("Right","Left")
 xlim([0 100])
 hold off
 
 subplot(3,3,3)
-plot(X_axis_gait_R,MH_R/total_mass,color="r")
+plot(X_axis_gait_R,MA_R/total_mass,LineWidth=1.5,color="r")
 hold on
-plot(X_axis_gait_L,MH_L/total_mass,color="b")
+plot(X_axis_gait_L,MA_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("moment / Nm/kg")
-title("Hip")
+ylabel(" Nm/kg")
+title("Ankle")
 legend("Right","Left")
 xlim([0 100])
 hold off
 
 subplot(3,3,4)
-plot(X_axis_gait_R,P_foot_R/total_mass,color="r")
+plot(X_axis_gait_R,P_hip_R/total_mass,LineWidth=1.5,color="r")
 hold on
-plot(X_axis_gait_L,P_foot_L/total_mass,color="b")
+plot(X_axis_gait_L,P_hip_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
 legend("Right","Left")
+title("Hip power")
 xlim([0 100])
 hold off
 
 subplot(3,3,5)
-plot(X_axis_gait_R,P_knee_R/total_mass,color="r")
+plot(X_axis_gait_R,P_knee_R/total_mass,LineWidth=1.5,color="r")
 hold on
-plot(X_axis_gait_L,P_knee_L/total_mass,color="b")
+plot(X_axis_gait_L,P_knee_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
 legend("Right","Left")
+title("Knee power")
 xlim([0 100])
 hold off
 
 subplot(3,3,6)
-plot(X_axis_gait_R,P_hip_R/total_mass,color="r")
+plot(X_axis_gait_R,P_foot_R/total_mass,LineWidth=1.5,color="r")
 hold on
-plot(X_axis_gait_L,P_hip_L/total_mass,color="b")
+plot(X_axis_gait_L,P_foot_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
 legend("Right","Left")
+title("Ankle power")
 xlim([0 100])
 hold off
 
+
 figure(3)
-subplot(3,3,1)
+
+ax=subplot(3,3,1);
 plot(X_axis_gait_R,trunk_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
 hold on 
 plot(X_axis_gait_crouch_R,trunk_angle_crouch(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
 title("Trunk angle")
 xlabel("gait / %")
-ylabel("Trunk angle / deg")
+ylabel("deg")
 legend("Walking","Crouch")
 xlim([0 100])
+ylim([-1 6])
+text(ax,-0.15, 0.85, 'Anterior.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+text(ax,-0.15, -0.1, 'Posterior.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+grid on
 hold off
 
-subplot(3,3,2)
+ax=subplot(3,3,2);
 plot(X_axis_gait_R,pelvis_angle(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,pelvis_angle_crouch(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("Pelvis angle / deg")
+ylabel("deg")
 title("Pelvis angle")
-legend("Walking","Crouch")
+legend("Walking","Crouch","Location","southwest")
 xlim([0 100])
+ylim([-1 18])
+text(ax,-0.15, 0.85, 'Anterior.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+text(ax,-0.15, -0.1, 'Posterior.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+grid on
 hold off
 
-subplot(3,3,3)
+ax=subplot(3,3,3);
 plot(X_axis_gait_R,hip_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,hip_angle_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("Hip angle / deg")
+ylabel("deg")
 title("Hip angle")
-legend("Walking","Crouch")
+legend("Walking","Crouch","Location","north")
 xlim([0 100])
+text(ax,-0.15, 0.85, 'Flexion.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+text(ax,-0.15, -0.1, 'Extension.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+grid on
 hold off
 
-subplot(3,3,4)
+ax=subplot(3,3,4);
 plot(X_axis_gait_R,knee_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,knee_angle_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("Knee angle / deg")
+ylabel("deg")
 title("Knee angle")
-legend("Walking","Crouch")
+legend("Walking","Crouch","Location","northwest")
 xlim([0 100])
+text(ax,-0.15, 0.85, 'Flexion.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+text(ax,-0.15, -0.1, 'Extension.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+grid on
 hold off
 
-subplot(3,3,5)
+ax=subplot(3,3,5);
 plot(X_axis_gait_R,foot_angle_R(right_gait_startframe:right_gait_endframe)*180/pi,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,foot_angle_crouch_R(right_gait_startframe_crouch:right_gait_endframe_crouch)*180/pi,LineWidth=1.5,color="b")
 xlabel("gait / %")
-ylabel("Foot angle / deg")
-title("foot angle")
-legend("Walking","Crouch")
+ylabel("deg")
+title("Ankle angle")
+legend("Walking","Crouch","Location","southwest")
 xlim([0 100])
+text(ax,-0.15, 0.85, 'Dorsi.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+text(ax,-0.15, 0.1, 'Plantar.', ...
+    'Units', 'normalized', ...
+    'FontSize', 8, ...
+    'HorizontalAlignment', 'center', ...
+    'Clipping', 'off');
+grid on
 hold off
+%exportgraphics(gcf,'NormalVCrouch_angles.png','Resolution',600)
 
 figure(4)
 
 subplot(3,3,1)
-plot(X_axis_gait_R,MA_R/total_mass,color="r")
-hold on
-plot(X_axis_gait_crouch_R,MA_crouch_R/total_mass,color="b")
-xlabel("gait / %")
-ylabel("moment / Nm/kg")
-title("Ankle")
-legend("Walking","Crouch")
-xlim([0 100])
-hold off
-
-subplot(3,3,2)
-plot(X_axis_gait_R,MK_R/total_mass,color="r")
-hold on
-plot(X_axis_gait_crouch_R,MK_crouch_R/total_mass,color="b")
-xlabel("gait / %")
-ylabel("moment / Nm/kg")
-title("Knee")
-legend("Walking","Crouch")
-xlim([0 100])
-hold off
-
-subplot(3,3,3)
 plot(X_axis_gait_R,MH_R/total_mass,color="r")
 hold on
-plot(X_axis_gait_crouch_R,MH_crouch_R/total_mass,color="b")
+plot(X_axis_gait_crouch_R,-MH_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("moment / Nm/kg")
 title("Hip")
@@ -999,35 +1050,63 @@ legend("Walking","Crouch")
 xlim([0 100])
 hold off
 
-subplot(3,3,4)
-plot(X_axis_gait_R,P_foot_R/total_mass,color="r")
+subplot(3,3,2)
+plot(X_axis_gait_R,MK_R/total_mass,color="r")
 hold on
-plot(X_axis_gait_crouch_R,P_foot_crouch_R/total_mass,color="b")
+plot(X_axis_gait_crouch_R,-MK_crouch_R/total_mass,LineWidth=1.5,color="b")
+xlabel("gait / %")
+ylabel("Nm/kg")
+title("Knee")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+subplot(3,3,3)
+plot(X_axis_gait_R,MA_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,-MA_crouch_R/total_mass,LineWidth=1.5,color="b")
+xlabel("gait / %")
+ylabel("Nm/kg")
+title("Ankle")
+legend("Walking","Crouch")
+xlim([0 100])
+hold off
+
+
+
+subplot(3,3,4)
+plot(X_axis_gait_R,P_hip_R/total_mass,color="r")
+hold on
+plot(X_axis_gait_crouch_R,P_hip_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
 legend("Walking","Crouch")
+title("Hip power")
 xlim([0 100])
 hold off
 
 subplot(3,3,5)
 plot(X_axis_gait_R,P_knee_R/total_mass,color="r")
 hold on
-plot(X_axis_gait_crouch_R,P_knee_crouch_R/total_mass,color="b")
+plot(X_axis_gait_crouch_R,P_knee_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
 legend("Walking","Crouch")
 xlim([0 100])
+title("Knee power")
 hold off
 
 subplot(3,3,6)
-plot(X_axis_gait_R,P_hip_R/total_mass,color="r")
+plot(X_axis_gait_R,P_foot_R/total_mass,color="r")
 hold on
-plot(X_axis_gait_crouch_R,P_hip_crouch_R/total_mass,color="b")
+plot(X_axis_gait_crouch_R,P_foot_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
 legend("Walking","Crouch")
+title("Ankle power")
 xlim([0 100])
 hold off
+
 
 %--------------------------------functions-------------------------------
 
