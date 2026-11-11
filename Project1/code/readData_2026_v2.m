@@ -860,7 +860,7 @@ hold on
 plot(X_axis_gait_L,MH_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel(" Nm/kg")
-title("Hip")
+title("Hip moment")
 legend("Right","Left")
 xlim([0 100])
 hold off
@@ -872,7 +872,7 @@ hold on
 plot(X_axis_gait_L,MK_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("Nm/kg")
-title("Knee")
+title("Knee moment")
 legend("Right","Left")
 xlim([0 100])
 hold off
@@ -883,7 +883,7 @@ hold on
 plot(X_axis_gait_L,MA_L/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel(" Nm/kg")
-title("Ankle")
+title("Ankle moment")
 legend("Right","Left")
 xlim([0 100])
 hold off
@@ -931,7 +931,7 @@ plot(X_axis_gait_crouch_R,trunk_angle_crouch(right_gait_startframe_crouch:right_
 title("Trunk angle")
 xlabel("gait / %")
 ylabel("deg")
-legend("Walking","Crouch")
+legend("Normal","Crouch")
 xlim([0 100])
 ylim([-1 6])
 text(ax,-0.15, 0.85, 'Anterior.', ...
@@ -954,7 +954,7 @@ plot(X_axis_gait_crouch_R,pelvis_angle_crouch(right_gait_startframe_crouch:right
 xlabel("gait / %")
 ylabel("deg")
 title("Pelvis angle")
-legend("Walking","Crouch","Location","southwest")
+legend("Normal","Crouch","Location","southwest")
 xlim([0 100])
 ylim([-1 18])
 text(ax,-0.15, 0.85, 'Anterior.', ...
@@ -977,7 +977,7 @@ plot(X_axis_gait_crouch_R,hip_angle_crouch_R(right_gait_startframe_crouch:right_
 xlabel("gait / %")
 ylabel("deg")
 title("Hip angle")
-legend("Walking","Crouch","Location","north")
+legend("Normal","Crouch","Location","north")
 xlim([0 100])
 text(ax,-0.15, 0.85, 'Flexion.', ...
     'Units', 'normalized', ...
@@ -999,7 +999,7 @@ plot(X_axis_gait_crouch_R,knee_angle_crouch_R(right_gait_startframe_crouch:right
 xlabel("gait / %")
 ylabel("deg")
 title("Knee angle")
-legend("Walking","Crouch","Location","northwest")
+legend("Normal","Crouch","Location","northwest")
 xlim([0 100])
 text(ax,-0.15, 0.85, 'Flexion.', ...
     'Units', 'normalized', ...
@@ -1021,7 +1021,7 @@ plot(X_axis_gait_crouch_R,foot_angle_crouch_R(right_gait_startframe_crouch:right
 xlabel("gait / %")
 ylabel("deg")
 title("Ankle angle")
-legend("Walking","Crouch","Location","southwest")
+legend("Normal","Crouch","Location","southwest")
 xlim([0 100])
 text(ax,-0.15, 0.85, 'Dorsi.', ...
     'Units', 'normalized', ...
@@ -1040,69 +1040,69 @@ hold off
 figure(4)
 
 subplot(3,3,1)
-plot(X_axis_gait_R,MH_R/total_mass,color="r")
+plot(X_axis_gait_R,MH_R/total_mass,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,-MH_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("moment / Nm/kg")
-title("Hip")
-legend("Walking","Crouch")
+title("Hip moment")
+legend("Normal","Crouch")
 xlim([0 100])
 hold off
 
 subplot(3,3,2)
-plot(X_axis_gait_R,MK_R/total_mass,color="r")
+plot(X_axis_gait_R,MK_R/total_mass,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,-MK_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("Nm/kg")
-title("Knee")
-legend("Walking","Crouch")
+title("Knee moment")
+legend("Normal","Crouch")
 xlim([0 100])
 hold off
 
 subplot(3,3,3)
-plot(X_axis_gait_R,MA_R/total_mass,color="r")
+plot(X_axis_gait_R,MA_R/total_mass,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,-MA_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("Nm/kg")
-title("Ankle")
-legend("Walking","Crouch")
+title("Ankle moment")
+legend("Normal","Crouch")
 xlim([0 100])
 hold off
 
 
 
 subplot(3,3,4)
-plot(X_axis_gait_R,P_hip_R/total_mass,color="r")
+plot(X_axis_gait_R,P_hip_R/total_mass,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,P_hip_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
-legend("Walking","Crouch")
+legend("Normal","Crouch")
 title("Hip power")
 xlim([0 100])
 hold off
 
 subplot(3,3,5)
-plot(X_axis_gait_R,P_knee_R/total_mass,color="r")
+plot(X_axis_gait_R,P_knee_R/total_mass,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,P_knee_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
-legend("Walking","Crouch")
+legend("Normal","Crouch")
 xlim([0 100])
 title("Knee power")
 hold off
 
 subplot(3,3,6)
-plot(X_axis_gait_R,P_foot_R/total_mass,color="r")
+plot(X_axis_gait_R,P_foot_R/total_mass,LineWidth=1.5,color="r")
 hold on
 plot(X_axis_gait_crouch_R,P_foot_crouch_R/total_mass,LineWidth=1.5,color="b")
 xlabel("gait / %")
 ylabel("W/kg")
-legend("Walking","Crouch")
+legend("Normal","Crouch")
 title("Ankle power")
 xlim([0 100])
 hold off
