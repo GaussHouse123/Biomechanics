@@ -1,4 +1,4 @@
-PathFileType	3	(X/Y/Z)	C:\Users\jenny\OneDrive - KTH\Documents\Teaching\Biomech 2026\Assignment 2\DataPreparation\ViconData\Lorenzo Cal 01.trc
+PathFileType	3	(X/Y/Z)	C:\Users\toill\Desktop\biomek_project2\ExperimentalData\static.trc
 DataRate	CameraRate	NumFrames	NumMarkers	Units	OrigDataRate	OrigDataStartFrame	OrigNumFrames
 100.0	100.0	100	65	mm	100.0	100	100	
 Frame#	Time	LFHD			RFHD			LBHD			RBHD			C7			T10			CLAV			STRN			RBAK			LSHO			LUPA			LELB			LFRM			LWRA			LWRB			LFIN			RSHO			RUPA			RELB			RFRM			RWRA			RWRB			RFIN			LASI			RASI			LPSI			RPSI			LTHI			LTHAP			LTHAD			LKNE			LKNM			LTIB			LTIAP			LTIAD			LANK			LMED			LHEE			LTOE			RTHI			RTHAP			RTHAD			RKNE			RKNM			RTIB			RTIAP			RTIAD			RANK			RMED			RHEE			RTOE			LPel			RPel			LHJC			RHJC			LKJC			RKJC			LAJC			RAJC			LSJC			RSJC			LEJC			REJC			LWJC			RWJC			
